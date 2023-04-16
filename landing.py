@@ -119,6 +119,7 @@ with col2:
     netbenexp = net_benefit_explainer(annual_gross_income)
     style = "<span style='font-family: sans-serif; font-size: 18pt;'>{}</span>".format(netbenexp)
     st.markdown(style, unsafe_allow_html=True)
+    st.markdown(""" <span style="font-family: sans-serif; font-size: 8pt;">Calculator prepared by Jessica Chew | [jessicacychew.com](https://jessicacychew.com) | [GitHub](https://github.com/jessicacychew/bia_policy_model)</span>""", unsafe_allow_html=True)
 
     
 
@@ -132,5 +133,6 @@ with col2:
 ## Share with Michael alongside list of next steps and ideas
 ## e.g., model line graph, do different scenarios with HECs, people receiving DSP etc and also different time drop downs, add language about two-part tax, add colour
 ## feedback form
+## drop down for code like UBI center
 
 
