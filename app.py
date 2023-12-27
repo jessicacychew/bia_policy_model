@@ -38,13 +38,13 @@ with tab1:
 
                 # Check if income entered is <0
                 if pi <0:
-                    st.warning("Error: Please enter a non-negative number.")
-                    pi = 0  # Set pi to 0 if less than 0
+                    st.warning("Error: Please enter a non-negative number to the nearest dollar, e.g., 45000")
+                    pi = 88888888  # Set pi to 0 if less than 0
 
             ## If pi can't be converted to an integer, throw the valid numbers error
             except ValueError:
                 st.warning("Error: Please enter valid numbers only to the nearest dollar, e.g., 45000")
-                pi = 0
+                pi = 88888888
         ## If nothing has been entered, use 0 as a placeholder to prevent errors
         ##else: pi = 0
         else: pi = 88888888
