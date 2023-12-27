@@ -222,7 +222,7 @@ with tab2:
     fig.add_trace(go.Bar(
         x = df['Gross earned income'],
         y = df['UBI Benefit'],
-        name = 'UBI <br> (Calculated at 32.26&#37; <br> of gross earned income)',
+        name = 'UBI <br> (Calculated at &#36;26K less 32.26&#37; <br> of gross earned income)',
         marker_color = 'green',
         base=df['Net earned income'],
         hovertemplate = ## Formatting the hover
