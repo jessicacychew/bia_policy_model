@@ -1,7 +1,3 @@
-Author: Jessica Chew
+gcloud builds submit --tag gcr.io/boxwood-airport-304120/bia_calculator  --project=boxwood-airport-304120
 
-This is the initial interactive Basic Income Australia policy modelling tool.
-
-The purpose of this tool is to provide an interactive way for a user to understand how a Basic Income will impact their net income based on their current income. 
-
-This basic income policy proposal was developed by Michael Haines of Basic Income Australia. Find out more here: https://basicincomeaustralia.com
+gcloud run deploy --image gcr.io/boxwood-airport-304120/bia_calculator --platform managed  --project=boxwood-airport-304120 --allow-unauthenticated
