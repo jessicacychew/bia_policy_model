@@ -305,6 +305,8 @@ with tab2:
 
     st.write("If you earn more than &#36;80,600 a year, it means you will still receive the regular UBI payment like everyone else however the full UBI payment (&#36;26K) will be recovered through the group tax system.")
     st.write("If you earn less than &#36;80,600 a year, you become a net UBI beneficiary on a sliding scale. This means, the more you earn, the lower the proportion of the $500/week UBI you will receive. The less you earn, the more of the UBI payment you get to keep. If you receive zero income in a year, you get to keep the full UBI amount (&#36;26K).")
+    st.write("From a weekly administrative perspective, you will receive &#36;500 into your bank account each week. Depending on your earnings that week, some or all of that basic income deposit will be repaid to the tax department. This will be done via your employer, or via the GST system or a special app that self-employed people can use to report their weekly earnings.") 
+    st.write("If on any week your taxable income drops below &#36;1,550, you will end up with a net benefit. If you have no income that week, you’ll get to keep the whole &#36;500 to meet your basic needs in that week.  There will be no delay, need to apply or need to prove your entitlement.  Once you start earning again, the repayments will restart, based on your weeks earnings. This system means you will receive the UBI unconditionally, while repayment will be conditional on the income you must report for tax purposes.  It adds no extra administration, while removing all mutual obligations.")
     st.write("For illustrative purposes this model currently uses a theoretical UBI of $500 month. In practice the BIA policy intends to match the monthly payment rate to the Henderson Poverty Line and adjust the maximum income threshold to reflect the latest wage data.")
     st.write("For more details visit BIA's [policy page](https://basicincomeaustralia.com/policy/).")
     
@@ -430,5 +432,6 @@ st.markdown(""" <span style="font-size: 8pt;">Last updated 28 December 2023 | Ca
 ## Do drop downs for weekly / monthly / annual views
 ## Dynamic input for UBI amount
 ## Population coverage estimate
+## Michael's extra verbiage
 
 
