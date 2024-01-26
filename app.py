@@ -1,20 +1,22 @@
 ## Author: Jessica Chew
-## Version: 0.0.0.0
-## Date: 27 Dec 2023
+## Version: 0.0.1
+## Date: 25 Jan 2024
+## Updates include: modularising the income threshold, clawback amounts and clawback rates
+## Updating the weekly UBI amount to $600 and the threshold to $96,714
+## Updating the tax schedule labels to 2023-2024 (although the rates are the same as the previous financial year)
+## Added more information about the latest Henderson Poverty Line data (June quarter 2023)
 ##############################################
 import pandas as pd
 import numpy as np
 import plotly.express as px
 import streamlit as st
 import plotly.graph_objects as go
-
 ##############################################
 
 st.set_page_config(layout="centered")
-
 st.image('BIA logo.png' , width=150)
 st.header("Basic Income Australia's Benefit Calculator")
-st.subheader("BIA proposes a universal basic income of AU$500/week - see what it means for you")
+st.subheader("BIA proposes a universal basic income of AU$600/week - see what it means for you")
 
 tab1 , tab2 , tab3 = st.tabs(["Calculator" , "Policy overview" , "Provide feedback"])
 
@@ -67,10 +69,11 @@ code {
 # Displays for the custom CSS
 st.markdown(custom_css, unsafe_allow_html=True)
 clawback_rate = 0.3226
+threshold_annual = 96714
 
 ## Functions
-# Calculate barebones personal income tax for FY 2022-2023
-# https://www.ato.gov.au/Rates/Individual-income-tax-rates/
+# Calculate barebones personal income tax for FY 2023-2024
+# https://www.ato.gov.au/tax-rates-and-codes/tax-rates-australian-residents
 def tax_payable(pi):
     tax=0
     if ((pi > 0) and (pi <= 18200)):
@@ -90,13 +93,13 @@ def tax_payable(pi):
 ## Set up the outputs at different time levels
 
 ## Basic income payment
-weekly_ubi_level = 500
+weekly_ubi_level = 600
 annual_ubi = weekly_ubi_level*52
 weekly_ubi = weekly_ubi_level
 fornightly_ubi = weekly_ubi_level*2
 
 ##Basic income clawback level
-clawback_amount = 26000
+clawback_amount = 31200
 
 ## Tax payable
 
@@ -116,18 +119,18 @@ fortnightly_net_income = round((pi-(tax_payable(pi)))/26,0)
 
 ## UBI recovery "clawback" function
 def clawback(annual_gross_income):
-    if (annual_gross_income >= 80600):
+    if (annual_gross_income >= threshold_annual):
         clawback = clawback_amount
-    elif (annual_gross_income < 80600):
-        clawback = round(annual_gross_income * 0.3226 ,0)
+    elif (annual_gross_income < threshold_annual):
+        clawback = round(annual_gross_income * clawback_rate ,0)
     return(clawback)
 
 net_ubi_benefit = clawback_amount - clawback(annual_gross_income) 
 
 def ubi_recovery_explainer(annual_gross_income):
-    if (annual_gross_income >= 80600):
-        explainer = "(Because your salary exceeds the annual threshold the whole basic income is recaptured)"
-    elif (annual_gross_income < 80600):
+    if (annual_gross_income >= threshold_annual):
+        explainer = "Because your salary exceeds the annual threshold the whole basic income is recaptured"
+    elif (annual_gross_income < threshold_annual):
         explainer = ""+ str(round(annual_gross_income,0)) + " x 32.26%"   
     return(explainer)
     
@@ -135,11 +138,11 @@ net_benefit = annual_net_income + net_ubi_benefit
 
 ## Default always-on result explainer
 def net_benefit_explainer_brief(annual_gross_income):
-    if (annual_gross_income >= 80600):
+    if (annual_gross_income >= threshold_annual):
         explainer = (
-        "<b style='font-size: 17px;'>Because your salary exceeds the annual threshold of &#36;80,600 <span style='color:#2874A6;'>you do not receive a net UBI benefit but neither are you worse off </span> (as your after-tax take home pay remains the same) </b> " 
+        "<b style='font-size: 17px;'>Because your salary exceeds the annual threshold of &#36;97,714 <span style='color:#2874A6;'>you do not receive a net UBI benefit but neither are you worse off </span> (as your after-tax take home pay remains the same) </b> " 
         )
-    elif (annual_gross_income < 80600):
+    elif (annual_gross_income < threshold_annual):
         explainer = (
             "<b style='font-size: 25px;'>Your income would be enhanced by "
             "<span style='color: #16A085;'>&#36;"
@@ -150,11 +153,11 @@ def net_benefit_explainer_brief(annual_gross_income):
 
 
 def net_benefit_explainer_detailed(annual_gross_income):
-    if (annual_gross_income >= 80600):
+    if (annual_gross_income >= threshold_annual):
         explainer = (
-        "<b style='font-size: 17px;'>Because your salary exceeds the annual threshold of &#36;80,600 <span style='color:#2874A6;'>you do not receive a net UBI benefit but neither are you worse off </span> (as your after-tax take home pay remains the same in both scenarios) </b> " 
+        "<b style='font-size: 17px;'>Because your salary exceeds the annual threshold of &#36;97,714 <span style='color:#2874A6;'>you do not receive a net UBI benefit but neither are you worse off </span> (as your after-tax take home pay remains the same in both scenarios) </b> " 
         )
-    elif (annual_gross_income < 80600):
+    elif (annual_gross_income < threshold_annual):
         explainer = (
             "<b style='font-size: 17px;'>You are "
             "<span style='color: #16A085;'>&#36;" 
@@ -171,10 +174,10 @@ with tab2:
 
     ### PREPARE DATA MODEL FOR CHARTING ### 
     ## Create the tax and UBI payable data model for chart
-    income_data = list(range(0, 100000, 5000))
+    income_data = list(range(0, 110000, 5000))
     df = pd.DataFrame({'Gross earned income':income_data})
     # Include the value 80,600 for treshold data visualisation
-    df = pd.concat([df, pd.DataFrame({'Gross earned income': [80600]})])
+    ##df = pd.concat([df, pd.DataFrame({'Gross earned income': [threshold_annual]})])  ## to delete
     # Sort the DataFrame by 'Gross earned income'
     df = df.sort_values(by='Gross earned income').reset_index(drop=True)
 
@@ -184,12 +187,12 @@ with tab2:
     df['Net earned income'] = df['Gross earned income'] - df['Tax']
 
     # Create 'UBI Benefit' column based on conditions
-    df['UBI Benefit'] = 26000-df['Gross earned income'].apply(lambda x: x * 0.3226 if x < 80600 else 26000)
+    df['UBI Benefit'] = clawback_amount-df['Gross earned income'].apply(lambda x: x * clawback_rate if x < threshold_annual else clawback_amount)
     df['Net final income'] = df['Net earned income'] + df['UBI Benefit']
-    df = df[df['Gross earned income'] != 80000] ## Remove $80K for chart display purposes
+    
 
     # Extra UBI benefit calculation for the UBI Benefit chart hover functionality later
-    ubi_benefit_hover_list = [26000 - x * 0.3226 if x < 80600 else 26000 for x in df['Gross earned income']]
+    ubi_benefit_hover_list = [clawback_amount - x * clawback_rate if x < threshold_annual else clawback_amount for x in df['Gross earned income']]
 
     ### START BUILDING THE PLOTLY CHARTS ###
     fig = go.Figure()
@@ -198,7 +201,7 @@ with tab2:
     fig.add_trace(go.Bar(
         x = df['Gross earned income'],
         y = df['Net earned income'],
-        name = 'Net earned income <br>(Gross income less 2022/23 <br> personal income tax, no UBI)',
+        name = 'Net earned income <br>(Gross income less 2023/24 <br> personal income tax, no UBI)',
         marker_color = 'blue',
         hovertemplate = ## Formatting the hover
         '<b>Gross earned income</b>: $%{x:,.0f}' +
@@ -222,7 +225,7 @@ with tab2:
     fig.add_trace(go.Bar(
         x = df['Gross earned income'],
         y = df['UBI Benefit'],
-        name = 'UBI <br> (Calculated at &#36;26K less 32.26&#37; <br> of gross earned income)',
+        name = 'UBI <br> (Calculated at &#36;31K less 32.26&#37; <br> of gross earned income)',
         marker_color = 'green',
         base=df['Net earned income'],
         hovertemplate = ## Formatting the hover
@@ -232,28 +235,28 @@ with tab2:
     ))
 
     ## Call out annotations on the chart
-    fig.add_annotation(x= 0, y=30000,
-    text="<b>Creating the income floor</b><br>If the individual receives <br> no employment income, they <br>  then receive the full UBI of  &#36;26k ",
+    fig.add_annotation(x= 0, y=35000,
+    text="<b>Creating the income floor</b><br>If the individual receives <br> no employment income, they <br>  then receive the full UBI of  &#36;31k ",
     xanchor = "left", ## left/right for the annotation
     yanchor = "bottom", ## up/down for the annotation
     arrowhead = 0,
     arrowside = "end", ## arrow direction
     arrowcolor = "gray",
     ax = 8, ##arrow angle
-    ay = -80, ##arrow length
+    ay = -70, ##arrow length
     yshift=-3, ##text up and down
     bgcolor="rgb(255, 255, 240)", ##pale yellow colour
     showarrow=True,
     
         )
 
-    fig.add_annotation(x= 80000, y=65000,
-    text="<b> Medium to high earners unaffected</b><br>When gross earned income reaches $80,600, <br> the UBI is completely clawed back",
-    yanchor = "bottom",
+    fig.add_annotation(x= 95000, y=78000,
+    text="<b> Medium to high earners unaffected</b><br>When gross earned income reaches $96,714, <br> the UBI is completely clawed back",
+    xanchor = "right",
+    arrowside = "end",
     arrowhead = 0,
     arrowcolor = "gray",
-    ay = -13, ##arrow angle
-    yshift=5, #text up and down
+    ay = -15, ##arrow angle
     bgcolor="rgb(255, 255, 240)", ##pale yellow colour
     showarrow=True,
         )
@@ -271,7 +274,7 @@ with tab2:
             tick0=0,
             dtick=5000,
             tickfont=dict(size=14), ## font tick size
-            range=[-2000,96000], ##negative a thousand so that 0K doesn't get chopped off on the chart
+            range=[-2000,101000], ##negative a thousand so that 0K doesn't get chopped off on the chart
             title_font=dict(size=16),
             tickangle=-45
             ),
@@ -297,21 +300,22 @@ with tab2:
     ### CHARTING ENDS ###
 
     ### BLURB BEGINS ###
-    st.write("[Basic Income Australia Limited (BIA)](www.basicincomeaustralia.com) proposes a AU&#36;500/week (&#36;26,000/year) universal basic income (UBI) paid to every adult 18 years old and over in Australia without means testing, work requirements or conditions.")
-    st.write("The BIA policy recovers the UBI payment at 32.26 percent of an individual's gross salary up to &#36;80,600. The $80,600 was set so that it covers about 75 percent of tax payers¹. The 32.26 percent clawback rate was chosen as it represents the dollar amount of annual UBI paid to an individual out of the &#36;80,600 per year threshold (32.26% = &#36;26,000/&#36;80,600).")
-    st.write("This means an &#36;80,600 per annum salary is the threshold at which an individual ceases to be a net beneficiary. Hover your mouse on the chart below to explore the policy structure.")
+    st.write("[Basic Income Australia Limited (BIA)](www.basicincomeaustralia.com) proposes a AU&#36;600/week (&#36;31,200/year) universal basic income (UBI) paid to every adult 18 years old and over in Australia without means testing, work requirements or conditions. The proposed amount aligns to the June Quarter 2023 single person Henderson Poverty Line of &#36;602.27/week¹, rounded down for modeling purposes.")
+    st.write("The BIA policy recovers the UBI payment at 32.26 percent of an individual's gross salary up to &#36;96,714 which is approximately 1.4 times the median wage². The 32.26 percent clawback rate was chosen as it represents the dollar amount of annual UBI paid to an individual out of the &#36;96,714 per year threshold (32.26% = &#36;31,200/&#36;96,714).")
+    st.write("This means a &#36;96,714 per annum salary is the threshold at which an individual ceases to be a net beneficiary. Hover your mouse on the chart below to explore the policy structure.")
     ## Fang in the chart
     st.plotly_chart(fig, use_container_width=True)
 
-    st.write("If you earn more than &#36;80,600 a year, it means you will still receive the regular UBI payment like everyone else however the full UBI payment (&#36;26K) will be recovered through the group tax system.")
-    st.write("If you earn less than &#36;80,600 a year, you become a net UBI beneficiary on a sliding scale. This means, the more you earn, the lower the proportion of the $500/week UBI you will receive. The less you earn, the more of the UBI payment you get to keep. If you receive zero income in a year, you get to keep the full UBI amount (&#36;26K).")
-    st.write("From a weekly administrative perspective, you will receive &#36;500 into your bank account each week. Depending on your earnings that week, some or all of that basic income deposit will be repaid to the tax department. This will be done via your employer, or via the GST system or a special app that self-employed people can use to report their weekly earnings.") 
-    st.write("If on any week your taxable income drops below &#36;1,550, you will end up with a net benefit. If you have no income that week, you’ll get to keep the whole &#36;500 to meet your basic needs in that week.  There will be no delay, need to apply or need to prove your entitlement.  Once you start earning again, the repayments will restart, based on your weeks earnings. This system means you will receive the UBI unconditionally, while repayment will be conditional on the income you must report for tax purposes.  It adds no extra administration, while removing all mutual obligations.")
-    st.write("For illustrative purposes this model currently uses a theoretical UBI of $500 month. In practice the BIA policy intends to match the monthly payment rate to the Henderson Poverty Line and adjust the maximum income threshold to reflect the latest wage data.")
+    st.write("If you earn more than &#36;96,714 a year, it means you will still receive the regular UBI payment like everyone else however the full UBI payment (&#36;31K) will be recovered after the fact through the group tax system.")
+    st.write("If you earn less than &#36;96,714 a year, you become a net UBI beneficiary on a sliding scale. This means the more you earn, the lower the proportion of the $600/week UBI you will receive. The less you earn, the more of the UBI payment you get to keep. If you receive zero income in a year, you get to keep the full UBI amount (&#36;31K).")
+    st.write("From an administrative perspective, you will receive &#36;600 into your bank account each week. Depending on your earnings that week, some or all of that basic income deposit will be repaid to the tax department. This will be done via your employer, or via the GST system or a special app that self-employed people can use to report their weekly earnings.") 
+    st.write("If on any week your taxable income drops below &#36;1,860, you will end up with a net benefit. If you have no income that week, you’ll get to keep the whole &#36;600 to meet your basic needs in that week.  There will be no delay, need to apply or need to prove your entitlement.  Once you start earning again, the repayments will restart, based on your week's earnings. This system means you will receive the UBI unconditionally, while repayment will be conditional on the income you must report for tax purposes.  It adds no extra administration, while removing all mutual obligations.")
+    st.write("Should this proposal be implemented, the policy intends to match the weekly payment rate to the Henderson Poverty Line and adjust the maximum income threshold to reflect the latest wage data.")
     st.write("For more details visit BIA's [policy page](https://basicincomeaustralia.com/policy/).")
     
     
-    st.markdown("""<span style='font-size: 11px;'>¹[ABS - Characteristics of Employment 2017](https://www.abs.gov.au/AUSSTATS/abs@.nsf/Lookup/6333.0Main+Features1August%202017?OpenDocument)</span>""", unsafe_allow_html=True)
+    st.markdown("""<span style='font-size: 11px;'>¹[Melbourne Institute: Applied Economic & Social Research, Poverty Lines Australia - June Quarter 2023](https://melbourneinstitute.unimelb.edu.au/publications/poverty-lines)</span>""", unsafe_allow_html=True)
+    st.markdown("""<span style='font-size: 11px;'>²[ABS - Employee earnings, reference period August 2023](https://www.abs.gov.au/statistics/labour/earnings-and-working-conditions/employee-earnings/latest-release )</span>""", unsafe_allow_html=True)
 
 ## CALCULATOR PAGE ##
 with tab1:
@@ -372,7 +376,7 @@ with tab1:
             
             ## Padding
             st.markdown("<br>", unsafe_allow_html=True)
-            st.markdown(""" <span style="font-size: 8pt;">Tax calculations are based on the ATO 2022-2023 personal income tax schedule: https://www.ato.gov.au/rates/individual-income-tax-rates/</span>""", unsafe_allow_html=True)
+            st.markdown(""" <span style="font-size: 8pt;">Tax calculations are based on the ATO 2023-2024 personal income tax schedule: https://www.ato.gov.au/rates/individual-income-tax-rates/</span>""", unsafe_allow_html=True)
             st.markdown(""" <span style="font-size: 8pt;">Note: This calculator does not cover any HECS-HELP repayments, Medicare levy, Medicare levy surcharge, working holiday makers' tax obligations nor the First Home Super Saver (FHSS) scheme. It simply models the latest Australian personal income tax structure assuming you were a full-year resident for tax purposes.</span>""", unsafe_allow_html=True)
 
 ## PROVIDE FEEDBACK PAGE ##
@@ -426,12 +430,10 @@ with tab3:
 
     """, unsafe_allow_html=True)
 
-st.markdown(""" <span style="font-size: 8pt;">Last updated 28 December 2023 | Calculator prepared by Jessica Chew | [jessicacychew.com](https://jessicacychew.com) | View the code on [GitHub](https://github.com/jessicacychew/bia_policy_model) </span> """, unsafe_allow_html=True)
-## next steps (from 27 Dec 2023 onwards)
+st.markdown(""" <span style="font-size: 8pt;">Last updated 25 January 2024 | Calculator prepared by Jessica Chew | [jessicacychew.com](https://jessicacychew.com) | View the code on [GitHub](https://github.com/jessicacychew/bia_policy_model) </span> """, unsafe_allow_html=True)
+## next steps (from 26 January 2024 onwards)
 ## Get feedback from people
 ## Do drop downs for weekly / monthly / annual views
 ## Dynamic input for UBI amount
 ## Population coverage estimate
-## Michael's extra verbiage
-
 
