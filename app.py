@@ -141,7 +141,8 @@ net_benefit = annual_net_income + net_ubi_benefit
 def net_benefit_explainer_brief(annual_gross_income):
     if (annual_gross_income >= threshold_annual):
         explainer = (
-        "<b style='font-size: 17px;'>Because your salary meets or exceeds the annual threshold of &#36;80,600 <span style='color:#2874A6;'>you do not receive a net UBI benefit but neither are you worse off </span> (as your after-tax take home pay remains the same) </b> " 
+       "<b style='font-size: 17px;'>Because your salary meets or exceeds the annual threshold of &#36;80,600 <span style='color:#2874A6;'>you do not receive a net UBI benefit but neither are you worse off </span> (as your after-tax take home pay remains the same). <br></b>"
+        "<b style='font-size: 14px;'>Any time your income falls below this threshold you would begin to receive a benefit with the amount dependent on your pre-tax income. See the policy overview page for more details.</b>"
         )
     elif (annual_gross_income < threshold_annual):
         explainer = (
@@ -156,7 +157,7 @@ def net_benefit_explainer_brief(annual_gross_income):
 def net_benefit_explainer_detailed(annual_gross_income):
     if (annual_gross_income >= threshold_annual):
         explainer = (
-        "<b style='font-size: 17px;'>Because your salary meets or exceeds the annual threshold of &#36;80,600 <span style='color:#2874A6;'>you do not receive a net UBI benefit but neither are you worse off </span> (as your after-tax take home pay remains the same in both scenarios) </b> " 
+        "<b style='font-size: 17px;'>Because your salary meets or exceeds the annual threshold of &#36;80,600 <span style='color:#2874A6;'>you do not receive a net UBI benefit but neither are you worse off </span> (as your after-tax take home pay remains the same in both scenarios). </b> " 
         )
     elif (annual_gross_income < threshold_annual):
         explainer = (
@@ -301,15 +302,15 @@ with tab2:
 
     ### BLURB BEGINS ###
     st.write("[Basic Income Australia Limited (BIA)](www.basicincomeaustralia.com) proposes a AU&#36;500/week (&#36;26,000/year) universal basic income (UBI) paid to every adult 18 years old and over in Australia without means testing, work requirements or conditions. The proposed amount aligns to the June Quarter 2024 single person not in workforce Henderson Poverty Line of &#36;496.39/week¹, rounded up to $500 for modeling purposes.")
-    st.write("The BIA policy recovers the UBI payment at 32.26 percent of an individual's gross salary up to &#36;80,600 which is approximately 1.1 times the median wage². The 32.26 percent clawback rate was chosen as it represents the dollar amount of annual UBI paid to an individual out of the &#36;80,600 per year threshold (32.26% = &#36;26,000/&#36;80,600).")
+    st.write("The BIA policy recovers (or 'taxes') the UBI payment at 32.26 percent of an individual's gross salary up to &#36;80,600 which is approximately 1.1 times the median wage². The 32.26 percent clawback rate was chosen as it represents the dollar amount of annual UBI paid to an individual out of the &#36;80,600 per year threshold (32.26% = &#36;26,000/&#36;80,600).")
     st.write("This means a &#36;80,600 per annum salary is the threshold at which an individual ceases to be a net beneficiary. Hover your mouse on the chart below to explore the policy structure.")
     ## Fang in the chart
     st.plotly_chart(fig, use_container_width=True)
 
-    st.write("If you earn more than &#36;80,600 a year, it means you will still receive the regular UBI payment like everyone else however the full UBI payment (&#36;26K) will be recovered after the fact through the group tax system.")
-    st.write("If you earn less than &#36;80,600 a year, you become a net UBI beneficiary on a sliding scale. This means the more you earn, the lower the proportion of the $500/week UBI you will receive. The less you earn, the more of the UBI payment you get to keep. If you receive zero income in a year, you get to keep the full UBI amount (&#36;26K).")
+    st.write("If you earn more than &#36;80,600 a year, it means you will still receive the regular UBI payment like everyone else however the full UBI payment (&#36;26K) will be recovered after the fact through the tax system.")
+    st.write("If on any week your taxable income drops below &#36;1,550 you become a net UBI beneficiary on a sliding scale. This means the more you earn, the higher the UBI tax you pay and the lower the proportion of the $500/week UBI you will receive. The less you earn, the less UBI tax you pay and the more of the UBI payment you get to keep to meet your basic needs. If you receive zero income in a year, you get to keep the full UBI amount (&#36;500 per week or &#36;26K per year).")
+    st.write("There will be no delay, need to apply or need to prove your entitlement.  Once you start earning again, the repayments will restart, based on your week's earnings. This system means you will receive the UBI unconditionally, while repayment will be conditional on the income you must report for tax purposes.  It adds no extra administration, while removing all mutual obligations.")
     st.write("From an administrative perspective, you will receive &#36;500 into your bank account each week. Depending on your earnings that week, some or all of that basic income deposit will be repaid to the tax department. This will be done via your employer, or via the GST system or a special app that self-employed people can use to report their weekly earnings.") 
-    st.write("If on any week your taxable income drops below &#36;1,550, you will end up with a net benefit. If you have no income that week, you’ll get to keep the whole &#36;500 to meet your basic needs in that week.  There will be no delay, need to apply or need to prove your entitlement.  Once you start earning again, the repayments will restart, based on your week's earnings. This system means you will receive the UBI unconditionally, while repayment will be conditional on the income you must report for tax purposes.  It adds no extra administration, while removing all mutual obligations.")
     st.write("Should this proposal be implemented, the policy intends to match the weekly payment rate to the Henderson Poverty Line and adjust the maximum income threshold to reflect the latest wage data.")
     st.write("For more details visit BIA's [policy page](https://basicincomeaustralia.com/policy/).")
     
